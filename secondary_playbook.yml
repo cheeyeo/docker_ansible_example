@@ -1,0 +1,11 @@
+---
+- hosts: web
+  vars:
+    host_volume: "/home/ec2-user/myapp"
+  remote_user: root
+  sudo: yes
+  tasks:
+  - name: Run migrations
+    shell: docker-compose run web rake db:migrate
+    args:
+      chdir: "{{ host_volume }}"

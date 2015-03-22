@@ -1,0 +1,36 @@
+---
+- hosts: web
+  vars:
+    host_volume: "/home/ec2-user/myapp"
+  remote_user: root
+  sudo: yes
+  tasks:
+   - name: Install git if not present
+     yum: pkg=git state=latest
+   - name: Install docker if not present
+     yum: pkg=docker state=latest
+   - name: Start docker as a service
+     service: name=docker state=started
+   - name: Install docker-compose
+     shell: curl -L https://github.com/docker/compose/releases/download/1.1.0/docker-compose-`uname -s`-`uname -m` > /usr/bin/docker-compose
+   - name: Make docker-compose executable
+     file: path=/usr/bin/docker-compose mode="u=rwx,g=rx,o=rx"
+   - name: Add app dir if it doesn't yet exist
+     file: path="{{ host_volume }}" owner=nobody recurse=yes state=directory
+     sudo: yes
+   - name: Pull latest code from repository
+     git: repo=https://github.com/cheeyeo/docker_ansible_example.git
+          dest={{ host_volume }}
+          accept_hostkey=yes
+          force=yes
+   - name: Build Docker image with app volumes
+     command: docker-compose build
+     args:
+       chdir: "{{ host_volume }}"
+   - name: Turn on app volume
+     command: docker-compose up
+     args:
+       chdir: "{{ host_volume }}"
+
+
+
