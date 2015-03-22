@@ -11,7 +11,7 @@
 /log/*
 !/log/.keep
 /tmp
-.env.*
+
 ansible_example_playbook.yml
 ansible_example_playbook2.yml
 basic_playbook.yml
